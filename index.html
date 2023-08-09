@@ -1,44 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>QR Code Reader</title>
+    <title>Stylish QR Code Reader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #qrReader {
+            width: 100%;
+            max-width: 600px;
+            background-color: #f2f2f2;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+        #cameraFeed {
+            width: 100%;
+            max-width: 100%;
+            border: 2px solid #444;
+            border-radius: 10px;
+        }
+        #result {
+            font-size: 18px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <h1>QR Code Reader</h1>
-    <video id="cameraFeed" autoplay></video>
-    <button id="enableButton">Habilitar Câmera</button>
-    <button id="disableButton">Desabilitar Câmera</button>
-    <button id="readButton">Ler QR Code</button>
-    <div id="result"></div>
+    <h1>Stylish QR Code Reader</h1>
+    <div id="qrReader">
+        <video id="cameraFeed" autoplay></video>
+        <div id="result"></div>
+    </div>
 
     <script src="https://cdn.rawgit.com/edi9999/jsqrcode/master/src/qr_packed.js"></script>
     <script>
-        let stream = null;
-
         async function startCamera() {
             const constraints = { video: { facingMode: 'environment' } };
             try {
-                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 const videoElement = document.getElementById('cameraFeed');
                 videoElement.srcObject = stream;
+
+                const qrCodeScanner = new QrCodeScanner(videoElement);
+                qrCodeScanner.onScan(result => {
+                    const resultElement = document.getElementById('result');
+                    resultElement.textContent = `QR Code Data: ${result}`;
+                });
             } catch (error) {
                 console.error('Error accessing camera:', error);
             }
-        }
-
-        function stopCamera() {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-        }
-
-        async function readQRCode() {
-            const videoElement = document.getElementById('cameraFeed');
-            const qrCodeScanner = new QrCodeScanner(videoElement);
-
-            qrCodeScanner.onScan(result => {
-                document.getElementById('result').textContent = `QR Code Data: ${result}`;
-            });
         }
 
         class QrCodeScanner {
@@ -80,9 +102,7 @@
             }
         }
 
-        document.getElementById('enableButton').addEventListener('click', startCamera);
-        document.getElementById('disableButton').addEventListener('click', stopCamera);
-        document.getElementById('readButton').addEventListener('click', readQRCode);
+        startCamera();
     </script>
 </body>
 </html>
