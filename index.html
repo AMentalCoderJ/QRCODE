@@ -1,35 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>QR Code Scanner with Rear Camera</title>
+    <title>QR Code Reader</title>
 </head>
 <body>
-    <h1>QR Code Scanner with Rear Camera</h1>
+    <h1>QR Code Reader</h1>
     <video id="cameraFeed" autoplay></video>
+    <button id="readButton">Ler QR Code</button>
     <div id="result"></div>
 
     <script src="https://cdn.rawgit.com/edi9999/jsqrcode/master/src/qr_packed.js"></script>
     <script>
-        async function startRearCamera() {
-            const constraints = {
-                video: {
-                    facingMode: {
-                        ideal: 'environment'
-                    }
-                }
-            };
+        async function startCamera() {
+            const constraints = { video: { facingMode: 'environment' } };
             try {
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 const videoElement = document.getElementById('cameraFeed');
                 videoElement.srcObject = stream;
-
-                const qrCodeScanner = new QrCodeScanner(videoElement);
-                qrCodeScanner.onScan(result => {
-                    document.getElementById('result').textContent = `QR Code Data: ${result}`;
-                });
             } catch (error) {
-                console.error('Error accessing rear camera:', error);
+                console.error('Error accessing camera:', error);
             }
+        }
+
+        async function readQRCode() {
+            const videoElement = document.getElementById('cameraFeed');
+            const qrCodeScanner = new QrCodeScanner(videoElement);
+
+            qrCodeScanner.onScan(result => {
+                document.getElementById('result').textContent = `QR Code Data: ${result}`;
+            });
         }
 
         class QrCodeScanner {
@@ -71,7 +70,9 @@
             }
         }
 
-        startRearCamera();
+        startCamera();
+
+        document.getElementById('readButton').addEventListener('click', readQRCode);
     </script>
 </body>
 </html>
