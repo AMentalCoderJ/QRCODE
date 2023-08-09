@@ -8,9 +8,16 @@
     <video id="cameraFeed" autoplay></video>
     <div id="result"></div>
 
+    <script src="https://cdn.rawgit.com/edi9999/jsqrcode/master/src/qr_packed.js"></script>
     <script>
         async function startRearCamera() {
-            const constraints = { video: { facingMode: 'environment' } };
+            const constraints = {
+                video: {
+                    facingMode: {
+                        ideal: 'environment'
+                    }
+                }
+            };
             try {
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 const videoElement = document.getElementById('cameraFeed');
