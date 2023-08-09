@@ -6,19 +6,29 @@
 <body>
     <h1>QR Code Reader</h1>
     <video id="cameraFeed" autoplay></video>
+    <button id="enableButton">Habilitar Câmera</button>
+    <button id="disableButton">Desabilitar Câmera</button>
     <button id="readButton">Ler QR Code</button>
     <div id="result"></div>
 
     <script src="https://cdn.rawgit.com/edi9999/jsqrcode/master/src/qr_packed.js"></script>
     <script>
+        let stream = null;
+
         async function startCamera() {
             const constraints = { video: { facingMode: 'environment' } };
             try {
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
                 const videoElement = document.getElementById('cameraFeed');
                 videoElement.srcObject = stream;
             } catch (error) {
                 console.error('Error accessing camera:', error);
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
             }
         }
 
@@ -70,8 +80,8 @@
             }
         }
 
-        startCamera();
-
+        document.getElementById('enableButton').addEventListener('click', startCamera);
+        document.getElementById('disableButton').addEventListener('click', stopCamera);
         document.getElementById('readButton').addEventListener('click', readQRCode);
     </script>
 </body>
