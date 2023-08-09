@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Stylish QR Code Reader</title>
+    <title>QR Code Reader</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,16 +14,8 @@
         }
         #qrReader {
             width: 100%;
-            max-width: 600px;
-            background-color: #f2f2f2;
-            border: 1px solid #ccc;
-            padding: 20px;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
+            max-width: 400px;
+            text-align: center;
         }
         #cameraFeed {
             width: 100%;
@@ -33,23 +25,28 @@
         }
         #result {
             font-size: 18px;
-            text-align: center;
+            margin-top: 10px;
+        }
+        #link {
+            display: none;
+            font-size: 18px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>Stylish QR Code Reader</h1>
+    <h1>QR Code Reader</h1>
     <div id="qrReader">
         <video id="cameraFeed" autoplay></video>
         <div id="result"></div>
+        <a id="link" href="#" target="_blank">Abrir Link</a>
     </div>
 
     <script src="https://cdn.rawgit.com/edi9999/jsqrcode/master/src/qr_packed.js"></script>
     <script>
         async function startCamera() {
-            const constraints = { video: { facingMode: 'environment' } };
             try {
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 const videoElement = document.getElementById('cameraFeed');
                 videoElement.srcObject = stream;
 
@@ -57,6 +54,10 @@
                 qrCodeScanner.onScan(result => {
                     const resultElement = document.getElementById('result');
                     resultElement.textContent = `QR Code Data: ${result}`;
+
+                    const linkElement = document.getElementById('link');
+                    linkElement.href = result;
+                    linkElement.style.display = 'block';
                 });
             } catch (error) {
                 console.error('Error accessing camera:', error);
