@@ -8,28 +8,11 @@
     <video id="cameraFeed" autoplay></video>
     <div id="result"></div>
 
-    <script src="https://cdn.rawgit.com/edi9999/jsqrcode/master/src/qr_packed.js"></script>
     <script>
-        async function getRearCameraStream() {
-            try {
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const rearCamera = devices.find(device => device.kind === 'videoinput' && device.label.includes('back'));
-
-                if (rearCamera) {
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: rearCamera.deviceId } });
-                    return stream;
-                } else {
-                    console.error('Rear camera not found.');
-                }
-            } catch (error) {
-                console.error('Error accessing rear camera:', error);
-            }
-        }
-
         async function startRearCamera() {
-            const stream = await getRearCameraStream();
-
-            if (stream) {
+            const constraints = { video: { facingMode: 'environment' } };
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 const videoElement = document.getElementById('cameraFeed');
                 videoElement.srcObject = stream;
 
@@ -37,6 +20,8 @@
                 qrCodeScanner.onScan(result => {
                     document.getElementById('result').textContent = `QR Code Data: ${result}`;
                 });
+            } catch (error) {
+                console.error('Error accessing rear camera:', error);
             }
         }
 
