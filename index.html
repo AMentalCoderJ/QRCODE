@@ -1,47 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>QR Code Scanner with Camera Switch</title>
+    <title>QR Code Scanner with Rear Camera</title>
 </head>
 <body>
-    <h1>QR Code Scanner with Camera Switch</h1>
+    <h1>QR Code Scanner with Rear Camera</h1>
     <video id="cameraFeed" autoplay></video>
-    <button id="switchButton">Switch Camera</button>
     <div id="result"></div>
 
     <script src="https://cdn.rawgit.com/edi9999/jsqrcode/master/src/qr_packed.js"></script>
     <script>
-        async function getCameraStream(constraints) {
+        async function getRearCameraStream() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                return stream;
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const rearCamera = devices.find(device => device.kind === 'videoinput' && device.label.includes('back'));
+
+                if (rearCamera) {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: rearCamera.deviceId } });
+                    return stream;
+                } else {
+                    console.error('Rear camera not found.');
+                }
             } catch (error) {
-                console.error('Error accessing camera:', error);
+                console.error('Error accessing rear camera:', error);
             }
         }
 
-        async function switchCamera() {
-            const videoElement = document.getElementById('cameraFeed');
-            const currentStream = videoElement.srcObject;
-            
-            if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
-            }
+        async function startRearCamera() {
+            const stream = await getRearCameraStream();
 
-            const facingMode = (currentStream && currentStream.getVideoTracks()[0].getSettings().facingMode === 'user') ? 'environment' : 'user';
-            
-            const constraints = { video: { facingMode: facingMode } };
-            const newStream = await getCameraStream(constraints);
-
-            videoElement.srcObject = newStream;
-        }
-
-        document.getElementById('switchButton').addEventListener('click', switchCamera);
-
-        // Start with the front camera by default
-        const constraints = { video: { facingMode: 'user' } };
-        getCameraStream(constraints)
-            .then(stream => {
+            if (stream) {
                 const videoElement = document.getElementById('cameraFeed');
                 videoElement.srcObject = stream;
 
@@ -49,7 +37,8 @@
                 qrCodeScanner.onScan(result => {
                     document.getElementById('result').textContent = `QR Code Data: ${result}`;
                 });
-            });
+            }
+        }
 
         class QrCodeScanner {
             constructor(videoElement) {
@@ -89,6 +78,8 @@
                 this.onScan = callback;
             }
         }
+
+        startRearCamera();
     </script>
 </body>
 </html>
