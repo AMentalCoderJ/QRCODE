@@ -46,7 +46,12 @@
     <script>
         async function startCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const constraints = {
+                    video: {
+                        facingMode: 'environment'
+                    }
+                };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 const videoElement = document.getElementById('cameraFeed');
                 videoElement.srcObject = stream;
 
