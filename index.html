@@ -42,7 +42,7 @@
         <a id="link" href="#" target="_blank">Abrir Link</a>
     </div>
 
-    <script src="https://cdn.rawgit.com/edi9999/jsqrcode/master/src/qr_packed.js"></script>
+    <script src="https://rawgit.com/zxing-js/library/master/dist/zxing.min.js"></script>
     <script>
         async function startCamera() {
             try {
@@ -55,56 +55,17 @@
                 const videoElement = document.getElementById('cameraFeed');
                 videoElement.srcObject = stream;
 
-                const qrCodeScanner = new QrCodeScanner(videoElement);
-                qrCodeScanner.onScan(result => {
+                const qrCodeScanner = new ZXing.BrowserQRCodeReader();
+                qrCodeScanner.decodeOnceFromVideoDevice(undefined, 'cameraFeed', result => {
                     const resultElement = document.getElementById('result');
-                    resultElement.textContent = `QR Code Data: ${result}`;
+                    resultElement.textContent = `QR Code Data: ${result.text}`;
 
                     const linkElement = document.getElementById('link');
-                    linkElement.href = result;
+                    linkElement.href = result.text;
                     linkElement.style.display = 'block';
                 });
             } catch (error) {
                 console.error('Error accessing camera:', error);
-            }
-        }
-
-        class QrCodeScanner {
-            constructor(videoElement) {
-                this.video = videoElement;
-                this.qrCodeDetector = new jsQR();
-                this.scanInterval = null;
-                this.startScanning();
-            }
-
-            startScanning() {
-                this.scanInterval = setInterval(this.scan.bind(this), 1000);
-            }
-
-            stopScanning() {
-                clearInterval(this.scanInterval);
-            }
-
-            scan() {
-                const canvas = document.createElement('canvas');
-                canvas.width = this.video.videoWidth;
-                canvas.height = this.video.videoHeight;
-                const context = canvas.getContext('2d');
-                context.drawImage(this.video, 0, 0, canvas.width, canvas.height);
-
-                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                const code = this.qrCodeDetector.decode(imageData.data, canvas.width, canvas.height);
-
-                if (code) {
-                    this.stopScanning();
-                    if (this.onScan) {
-                        this.onScan(code.data);
-                    }
-                }
-            }
-
-            onScan(callback) {
-                this.onScan = callback;
             }
         }
 
